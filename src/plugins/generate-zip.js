@@ -11,6 +11,25 @@ const __dirname = path.dirname(__filename);
 const sourcePluginsDir = path.join(__dirname, '..', '..', 'main', 'plugins');
 const outputPluginsDir = path.join(__dirname, '..', '..', 'dist', 'plugins');
 
+// 递归添加文件夹内容到 zip
+function addFolderToZip(zip, folderPath, zipPath = '') {
+  const items = fs.readdirSync(folderPath);
+  
+  for (const item of items) {
+    const fullPath = path.join(folderPath, item);
+    const relativePath = zipPath ? `${zipPath}/${item}` : item;
+    const stat = fs.statSync(fullPath);
+    
+    if (stat.isDirectory()) {
+      // 递归处理子文件夹
+      addFolderToZip(zip, fullPath, relativePath);
+    } else {
+      // 添加文件到 zip
+      zip.file(relativePath, fs.readFileSync(fullPath));
+    }
+  }
+}
+
 async function generatePluginsZip() {
   try {
     // 动态获取插件文件夹列表
@@ -36,15 +55,16 @@ async function generatePluginsZip() {
         }
         
         const zip = new JSZip();
-        zip.file('main.java', fs.readFileSync(mainJavaPath));
-        zip.file('info.prop', fs.readFileSync(infoPropPath));
+        
+        // 递归添加插件文件夹内的所有内容
+        addFolderToZip(zip, pluginDir);
         
         const content = await zip.generateAsync({ type: 'nodebuffer' });
         fs.writeFileSync(zipPath, content);
         
         console.log(`已生成: ${folder}.zip`);
       } else {
-        console.warn(`插件 ${folder} 缺少文件`);
+        console.warn(`插件 ${folder} 缺少必要文件 (main.java 或 info.prop)`);
       }
     }
     

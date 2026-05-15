@@ -60,7 +60,11 @@ async function generatePluginsAPI() {
       fs.mkdirSync(outputApiDir, { recursive: true });
     }
     
-    fs.writeFileSync(outputFile, JSON.stringify(plugins, null, 2));
+    // 自定义 JSON 序列化，保持中文字符不转义
+    const jsonStr = JSON.stringify(plugins, null, 2);
+    // 将 Unicode 转义序列还原为中文
+    const chineseJson = jsonStr.replace(/\\u([0-9a-fA-F]{4})/g, (match, hex) => String.fromCharCode(parseInt(hex, 16)));
+    fs.writeFileSync(outputFile, chineseJson);
     console.log(`插件 API 已生成: ${outputFile}`);
     console.log(`共 ${plugins.length} 个插件`);
   } catch (error) {
