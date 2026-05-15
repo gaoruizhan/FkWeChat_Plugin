@@ -115,7 +115,7 @@ export default function PluginDetail() {
         </div>
 
         {/* 下载按钮 */}
-        <div className="rounded-md border border-gray-200 p-5">
+        <div className="rounded-md border border-gray-200 p-5 mb-6">
           <h2 className="text-sm font-semibold text-gray-900 mb-2">下载插件</h2>
           <p className="text-gray-600 text-sm mb-4">
             下载包含所有文件的完整插件压缩包
