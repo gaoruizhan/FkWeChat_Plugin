@@ -46,17 +46,25 @@ async function generatePluginsAPI() {
     
     for (const folder of pluginFolders) {
       const infoPropPath = path.join(sourcePluginsDir, folder, 'info.prop');
+      const readmePath = path.join(sourcePluginsDir, folder, 'README.md');
       
       if (fs.existsSync(infoPropPath)) {
         const content = fs.readFileSync(infoPropPath, 'utf-8');
         const props = parseInfoProp(content);
+        
+        // 读取 README.md 内容
+        let readme = '';
+        if (fs.existsSync(readmePath)) {
+          readme = fs.readFileSync(readmePath, 'utf-8');
+        }
         
         plugins.push({
           author: props.author || '未知作者',
           name: props.name || folder,
           description: props.desc || '',
           downloadUrl: `https://YunJavaPro.github.io/FkWeChat_Plugin/plugins/${folder}/${folder}.zip`,
-          version: props.version || '1.0.0'
+          version: props.version || '1.0.0',
+          readme
         });
       }
     }
