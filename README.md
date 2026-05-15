@@ -20,7 +20,8 @@ GET https://YunJavaPro.github.io/FkWeChat_Plugin/api/plugins.json
     "name": "插件名称",
     "description": "插件描述",
     "downloadUrl": "下载链接",
-    "version": "版本号"
+    "version": "版本号",
+    "readme": "插件说明"
   }
 ]
 ```
