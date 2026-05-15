@@ -26,7 +26,7 @@ export function PluginCard({ plugin }: PluginCardProps) {
       </h3>
       
       <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-        {plugin.description}
+        {plugin.description || '暂无描述'}
       </p>
 
       <div className="flex items-center gap-2 text-xs text-gray-500">

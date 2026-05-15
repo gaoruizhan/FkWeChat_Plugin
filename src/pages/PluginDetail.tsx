@@ -111,7 +111,7 @@ export default function PluginDetail() {
             </div>
           </div>
           
-          <p className="text-gray-600">{currentPlugin.description}</p>
+          <p className="text-gray-600">{currentPlugin.description || '暂无描述'}</p>
         </div>
 
         {/* 下载按钮 */}
