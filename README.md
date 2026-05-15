@@ -1,9 +1,5 @@
 # FkWeChat 插件仓库
 
-## 网站地址
-
-https://YunJavaPro.github.io/FkWeChat_Plugin/
-
 ## API
 
 ### 获取插件列表
