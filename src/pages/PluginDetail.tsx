@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, User, Download, Loader2, CheckCircle } from 'lucide-react';
+import { ArrowLeft, User, Download, Loader2, CheckCircle, FileText } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { useStore } from '@/store/useStore';
@@ -144,6 +144,19 @@ export default function PluginDetail() {
             )}
           </button>
         </div>
+
+        {/* 更新日志 */}
+        {currentPlugin.pluginFiles?.['CHANGELOG.md'] && (
+          <div className="rounded-md border border-gray-200 p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <FileText className="h-4 w-4 text-gray-500" />
+              <h2 className="text-sm font-semibold text-gray-900">更新日志</h2>
+            </div>
+            <pre className="whitespace-pre-wrap text-sm text-gray-600 bg-gray-50 rounded-md p-4 font-mono leading-relaxed">
+              {currentPlugin.pluginFiles['CHANGELOG.md']}
+            </pre>
+          </div>
+        )}
       </div>
     </div>
   );
