@@ -11,6 +11,11 @@ const sourcePluginsDir = path.join(__dirname, '..', '..', 'main', 'plugins');
 const outputApiDir = path.join(__dirname, '..', '..', 'dist', 'api');
 const outputFile = path.join(outputApiDir, 'plugins.json');
 
+// 解码 Unicode 转义字符串（如 \u96F2\u4E0A\u5347 → 雲上升）
+function decodeUnicode(str) {
+  return str.replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+}
+
 function parseInfoProp(content) {
   const props = {};
   const lines = content.split('\n');
@@ -21,7 +26,7 @@ function parseInfoProp(content) {
       const equalsIndex = trimmed.indexOf('=');
       if (equalsIndex !== -1) {
         const key = trimmed.substring(0, equalsIndex).trim();
-        const value = trimmed.substring(equalsIndex + 1).trim();
+        const value = decodeUnicode(trimmed.substring(equalsIndex + 1).trim());
         props[key] = value;
       }
     }

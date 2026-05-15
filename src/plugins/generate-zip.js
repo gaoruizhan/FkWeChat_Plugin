@@ -11,6 +11,11 @@ const __dirname = path.dirname(__filename);
 const sourcePluginsDir = path.join(__dirname, '..', '..', 'main', 'plugins');
 const outputPluginsDir = path.join(__dirname, '..', '..', 'dist', 'plugins');
 
+// 解码 Unicode 转义字符串（如 \u96F2\u4E0A\u5347 → 雲上升）
+function decodeUnicode(str) {
+  return str.replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+}
+
 // 递归添加文件夹内容到 zip
 function addFolderToZip(zip, folderPath, zipPath = '') {
   const items = fs.readdirSync(folderPath);
@@ -24,8 +29,17 @@ function addFolderToZip(zip, folderPath, zipPath = '') {
       // 递归处理子文件夹
       addFolderToZip(zip, fullPath, relativePath);
     } else {
-      // 添加文件到 zip
-      zip.file(relativePath, fs.readFileSync(fullPath));
+      // 读取文件内容
+      let fileContent = fs.readFileSync(fullPath);
+      
+      // 如果是 info.prop 文件，解码 Unicode 转义字符串
+      if (item === 'info.prop') {
+        let text = fileContent.toString('utf-8');
+        text = decodeUnicode(text);
+        fileContent = Buffer.from(text, 'utf-8');
+      }
+      
+      zip.file(relativePath, fileContent);
     }
   }
 }
