@@ -11,4 +11,5 @@ export interface Plugin {
 export interface PluginDetail extends Plugin {
   mainJava: string;
   infoProp: string;
+  pluginFiles: Record<string, string>;
 }

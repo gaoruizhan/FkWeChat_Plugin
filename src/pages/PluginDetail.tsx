@@ -28,9 +28,12 @@ export default function PluginDetail() {
     try {
       const zip = new JSZip();
       
-      // Add files to zip
-      zip.file('main.java', currentPlugin.mainJava);
-      zip.file('info.prop', currentPlugin.infoProp);
+      // 打包插件文件夹内所有文件
+      if (currentPlugin.pluginFiles) {
+        for (const [relativePath, content] of Object.entries(currentPlugin.pluginFiles)) {
+          zip.file(relativePath, content);
+        }
+      }
       
       // Generate zip file
       const content = await zip.generateAsync({ type: 'blob' });
@@ -115,7 +118,7 @@ export default function PluginDetail() {
         <div className="rounded-md border border-gray-200 p-5">
           <h2 className="text-sm font-semibold text-gray-900 mb-2">下载插件</h2>
           <p className="text-gray-600 text-sm mb-4">
-            下载包含 main.java 和 info.prop 的完整插件压缩包
+            下载包含所有文件的完整插件压缩包
           </p>
           
           <button

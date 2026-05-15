@@ -1,5 +1,10 @@
 import type { Plugin, PluginDetail } from '@/types';
 
+// 解码 Unicode 转义字符串（如 \u96F2\u4E0A\u5347 → 雲上升）
+function decodeUnicode(str: string): string {
+  return str.replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+}
+
 // 解析 info.prop 文件
 function parseInfoProp(content: string, folder: string): Plugin {
   const props: Record<string, string> = {};
@@ -11,7 +16,7 @@ function parseInfoProp(content: string, folder: string): Plugin {
       const equalsIndex = trimmed.indexOf('=');
       if (equalsIndex !== -1) {
         const key = trimmed.substring(0, equalsIndex).trim();
-        const value = trimmed.substring(equalsIndex + 1).trim();
+        const value = decodeUnicode(trimmed.substring(equalsIndex + 1).trim());
         props[key] = value;
       }
     }
@@ -51,6 +56,8 @@ export async function fetchPluginDetail(folder: string): Promise<PluginDetail> {
   const infoProps = import.meta.glob('/main/plugins/*/info.prop', { query: '?raw', eager: true, import: 'default' }) as Record<string, string>;
   // 对于 java 文件使用按需加载，不加 eager: true，点击详情时再去拉取
   const mainJavas = import.meta.glob('/main/plugins/*/main.java', { query: '?raw', import: 'default' });
+  // 加载插件文件夹内所有文件（用于完整打包下载）
+  const allFiles = import.meta.glob('/main/plugins/**/*', { query: '?raw', eager: true, import: 'default' }) as Record<string, string>;
   
   const propPath = `/main/plugins/${folder}/info.prop`;
   const javaPath = `/main/plugins/${folder}/main.java`;
@@ -59,13 +66,26 @@ export async function fetchPluginDetail(folder: string): Promise<PluginDetail> {
     throw new Error('获取插件详情失败：文件不存在');
   }
 
-  const infoProp = infoProps[propPath];
+  const infoPropRaw = infoProps[propPath];
+  const infoProp = decodeUnicode(infoPropRaw);
   const mainJava = await mainJavas[javaPath]() as string;
-  const plugin = parseInfoProp(infoProp, folder);
+  const plugin = parseInfoProp(infoPropRaw, folder);
+
+  // 收集插件文件夹内所有文件（排除文件夹本身）
+  const pluginFiles: Record<string, string> = {};
+  const prefix = `/main/plugins/${folder}/`;
+  for (const filePath in allFiles) {
+    if (filePath.startsWith(prefix)) {
+      const relativePath = filePath.substring(prefix.length);
+      // info.prop 需要解码，其他文件原样保留
+      pluginFiles[relativePath] = relativePath === 'info.prop' ? infoProp : allFiles[filePath];
+    }
+  }
 
   return {
     ...plugin,
     mainJava,
     infoProp,
+    pluginFiles,
   };
 }
